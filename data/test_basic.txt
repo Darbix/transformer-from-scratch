@@ -1,0 +1,20 @@
+I see a new car.                	Vidím nové auto.
+I see a small city.              	Vidím malé město.
+I do not see the old library.    	Nevidím starou knihovnu.
+My dog sleeps quietly.           	Můj pes spí tiše.
+My book is new.                  	Moje kniha je nová.
+I am going home quickly.         	Jdu rychle domů.
+I am going to the school slowly.	Jdu pomalu do školy.
+I want to buy new food.          	Chci koupit nové jídlo.
+I want to see their house.       	Chci vidět jejich dům.
+I cannot see the car.            	Nemůžu vidět auto.
+Where is my water?               	Kde je moje voda?
+Where is his dog?                	Kde je jeho pes?
+They do not see the book.        	Oni nevidí knihu.
+They do not see the city.        	Oni nevidí město.
+Do you have a new book?          	Máte novou knihu?
+Do you have an old car?          	Máte staré auto?
+I need new food.                 	Potřebuji nové jídlo.
+I see their city.                	Vidím jejich město.
+That is her house.               	To je její dům.
+That is their library.           	To je jejich knihovna.

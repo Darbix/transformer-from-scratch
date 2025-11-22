@@ -1,0 +1,80 @@
+Where is the library?           	Kde je knihovna?
+Where is my dog?                	Kde je můj pes?
+Where is my book?               	Kde je moje kniha?
+That is my dog.                 	To je můj pes.
+That is my book.                	To je moje kniha.
+That is our library.            	To je naše knihovna.
+I see a dog.                    	Vidím psa.
+I see a book.                   	Vidím knihu.
+I see the city.                 	Vidím město.
+I do not see the library.       	Nevidím knihovnu.
+I do not see my house.          	Nevidím svůj dům.
+I do not see anyone.            	Nevidím nikoho.
+I am going to the city.         	Jdu do města.
+I am going to the library.      	Jdu do knihovny.
+I am going home.                	Jdu domů.
+I do not want to go to school.  	Nechci jít do školy.
+I want to go outside.           	Chci jít ven.
+I want to go home.              	Chci jít domů.
+My dog is running.              	Můj pes běží.
+My cat is sleeping.             	Moje kočka spí.
+Our car is waiting.             	Naše auto čeká.
+The dog runs fast.              	Pes běží rychle.
+The cat sleeps quietly.         	Kočka spí tiše.
+The car drives slowly.          	Auto jede pomalu.
+I am eating an apple.           	Jím jablko.
+I am drinking water.            	Piju vodu.
+I need food.                    	Potřebuji jídlo.
+We have two apples.             	Máme dvě jablka.
+We have three books.            	Máme tři knihy.
+We have one car.                	Máme jedno auto.
+He has a dog.                   	On má psa.
+He has a new book.              	On má novou knihu.
+She has a car.                  	Ona má auto.
+The house is big.               	Ten dům je velký.
+The city is small.              	To město je malé.
+The library is old.             	Knihovna je stará.
+My house is new.                	Můj dům je nový.
+His car is fast.                	Jeho auto je rychlé.
+Her book is good.               	Její kniha je dobrá.
+I see his dog.                  	Vidím jeho psa.
+I see her book.                 	Vidím její knihu.
+I do not see their house.       	Nevidím jejich dům.
+They see the city.              	Oni vidí město.
+They see the library.           	Oni vidí knihovnu.
+They see the car.               	Oni vidí auto.
+I will buy a book.              	Koupím knihu.
+I will buy food.                	Koupím jídlo.
+I will buy water.               	Koupím vodu.
+I want to buy a car.            	Chci koupit auto.
+I want to buy a book.           	Chci koupit knihu.
+I want to buy food.             	Chci koupit jídlo.
+We are going to the city.       	Jdeme do města.
+We are going outside.           	Jdeme ven.
+We are going home.              	Jdeme domů.
+I can see the city.             	Můžu vidět město.
+I can see the dog.              	Můžu vidět psa.
+I can see the book.             	Můžu vidět knihu.
+I cannot find the book.         	Nemůžu najít knihu.
+I cannot find the house.        	Nemůžu najít dům.
+I cannot find the car.          	Nemůžu najít auto.
+Do you have food?               	Máte jídlo?
+Do you have a book?             	Máte knihu?
+Do you have a dog?              	Máte psa?
+I need help.                    	Potřebuji pomoc.
+I need water.                   	Potřebuji vodu.
+I need a book.                  	Potřebuji knihu.
+Where is the school?            	Kde je škola?
+Where is the station?           	Kde je nádraží?
+Where is the house?             	Kde je dům?
+That is my house.               	To je můj dům.
+That is our city.               	To je naše město.
+That is his book.               	To je jeho kniha.
+That is their car.              	To je jejich auto.
+I see the school.               	Vidím školu.
+I see the station.              	Vidím nádraží.
+I see the countryside.          	Vidím venkov.
+I am going to the station.      	Jdu na nádraží.
+I am going to the school.       	Jdu do školy.
+I want to see the school.       	Chci vidět školu.
+I want to see the station.      	Chci vidět nádraží.
