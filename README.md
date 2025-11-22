@@ -1,6 +1,6 @@
 # Transformer from Scratch: Sequence-to-Sequence Model
 
-![Transformer](imgs/transformer_architecture.png)
+<img src="imgs/transformer_architecture.png" alt="Transformer" width="350"/>
 
 ## Table of Contents
 - [Project Overview](#project-overview)
