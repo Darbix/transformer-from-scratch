@@ -1,6 +1,6 @@
 # Transformer from Scratch: Sequence-to-Sequence Model
 
-<img src="imgs/transformer_architecture.png" alt="Transformer" width="350"/>
+<img src="imgs/transformer_architecture.png?" alt="Transformer" width="100%"/>
 
 *Architecture diagram inspired by the original Transformer model from [Vaswani et al., “Attention Is All You Need” (2017)](https://arxiv.org/abs/1706.03762).*
 
