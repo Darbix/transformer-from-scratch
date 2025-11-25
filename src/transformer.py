@@ -467,7 +467,7 @@ class Transformer(nn.Module):
 
         # Hide padding + future tokens from tgt sequence
         tgt_pad_mask = self.create_padding_mask(tgt)
-        tgt_look_ahead_mask = self.create_look_ahead_mask(tgt.size(1)).bool()
+        tgt_look_ahead_mask = self.create_look_ahead_mask(tgt.size(1)).to(tgt.device).bool()
         tgt_mask = tgt_pad_mask & tgt_look_ahead_mask
         # tgt_mask shape: (batch_size, 1, tgt_seq_len, tgt_seq_len)
 
