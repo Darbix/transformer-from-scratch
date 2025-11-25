@@ -84,7 +84,7 @@ def load_model(save_dir, device="cpu"):
     return model, src_tokenizer, tgt_tokenizer, config
 
 
-def bleu_n(pred_tokens, ref_tokens, max_n):
+def bleu_n(pred_text, ref_text, max_n):
     """
     N-gram precision metric (degree of similarity).
     Compute cumulative BLEU-N score for a single predicted sentence
@@ -92,9 +92,9 @@ def bleu_n(pred_tokens, ref_tokens, max_n):
     to the reference n-grams.
 
     Args:
-        pred_tokens: list of predicted tokens
-        ref_tokens: list of reference tokens
-        max_n: max n-gram order (1=unigram, 2=bigram, etc.)
+        pred_text: String of predicted text
+        ref_text: String of reference text
+        max_n: Max n-gram order (1=unigram, 2=bigram, etc.)
 
     Returns:
         BLEU-n score (0.0 - 1.0)
@@ -113,14 +113,16 @@ def bleu_n(pred_tokens, ref_tokens, max_n):
                 counts[ngram] = 1
         return counts
 
-    def normalize(tokens):
-        """Removes spaces before punctuation"""
-        text = " ".join(tokens)
-        text = re.sub(r"\s+([.,!?;:])", r"\1", text)
+    def normalize(text):
+        """Tokenize punctuation as separate tokens."""
+        # Add spaces around punctuation
+        text = re.sub(r"([.,!?;:])", r" \1 ", text)
+        # Normalize multiple spaces
+        text = re.sub(r"\s+", " ", text).strip()
         return text.split()
     
-    pred_tokens = normalize(pred_tokens)
-    ref_tokens = normalize(ref_tokens)
+    pred_tokens = normalize(pred_text)
+    ref_tokens = normalize(ref_text)
 
     precisions = []
 

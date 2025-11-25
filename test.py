@@ -66,9 +66,10 @@ def main():
         pred_tokens = tgt_tokenizer.seq_ids2tokens(pred_ids)
 
         # BLEU metric computation
-        ref_tokens = tgt.split()
-        bleu1 = bleu_n(pred_tokens, ref_tokens, max_n=1)
-        bleu2 = bleu_n(pred_tokens, ref_tokens, max_n=2)
+        pred_text = " ".join(pred_tokens)
+        ref_text = tgt
+        bleu1 = bleu_n(pred_text, ref_text, max_n=1)
+        bleu2 = bleu_n(pred_text, ref_text, max_n=2)
 
         bleu1_scores.append(bleu1)
         bleu2_scores.append(bleu2)
