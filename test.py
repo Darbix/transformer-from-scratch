@@ -11,7 +11,7 @@ import os
 from src.transformer import Transformer
 from src.tokenizer import TextTokenizer
 from src.dataset_utils import parse_dataset
-from src.utils import load_model, bleu_n
+from src.utils import load_model, bleu_n, fix_token_spacing
 
 
 def main():
@@ -19,15 +19,17 @@ def main():
     parser.add_argument("--data_path", type=str, default="data/test.txt")
     parser.add_argument("--checkpoint_dir", type=str, required=True)
     parser.add_argument("--max_tgt_len", type=int, default=-1)
-    parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--swap", action="store_true",
                         help="Loads data as <SRC>\\t<TGT> instead of <TGT>\\t<SRC>.")
     args = parser.parse_args()
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
     # ----- Load model + tokenizer state -----
     model, src_tokenizer, tgt_tokenizer, config = load_model(
         args.checkpoint_dir,
-        device=args.device
+        device=device
     )
 
     # ----- Load dataset -----
@@ -45,13 +47,14 @@ def main():
     # BLEU accumulators
     bleu1_scores = []
     bleu2_scores = []
+    bleu3_scores = []
 
     model.eval()
 
     # ----- Iterate through all samples -----
     for i, (src, tgt) in enumerate(data_pairs):
         # Encode the source input
-        src_ids = torch.tensor([src_tokenizer.encode(src)])
+        src_ids = torch.tensor([src_tokenizer.encode(src)], device=device)
 
         # Predict the target sentence
         with torch.no_grad():
@@ -65,28 +68,33 @@ def main():
         # Convert predicted IDs back to tokens
         pred_tokens = tgt_tokenizer.seq_ids2tokens(pred_ids)
 
-        # BLEU metric computation
-        pred_text = " ".join(pred_tokens)
+        # ----- BLEU metric computation -----
+        pred_text = fix_token_spacing(" ".join(pred_tokens))
         ref_text = tgt
+        
         bleu1 = bleu_n(pred_text, ref_text, max_n=1)
         bleu2 = bleu_n(pred_text, ref_text, max_n=2)
+        bleu3 = bleu_n(pred_text, ref_text, max_n=3)
 
         bleu1_scores.append(bleu1)
         bleu2_scores.append(bleu2)
+        bleu3_scores.append(bleu3)
 
         print(f"[{i}]", "-" * (46-(i//10)))
         print(f"SRC:  {src}")
-        print(f"PRED: {' '.join(pred_tokens)}")
-        print(f"REF:  {tgt}")
-        print(f"BLEU-1: {bleu1:.3f}, BLEU-2: {bleu2:.3f}")
+        print(f"PRED: {pred_text}")
+        print(f"REF:  {ref_test}")
+        print(f"BLEU-1: {bleu1:.3f}, BLEU-2: {bleu2:.3f}, BLEU-3: {bleu3:.3f}")
 
     # ----- Overall BLEU scores -----
     avg_bleu1 = sum(bleu1_scores) / len(bleu1_scores)
     avg_bleu2 = sum(bleu2_scores) / len(bleu2_scores)
+    avg_bleu3 = sum(bleu3_scores) / len(bleu3_scores)
 
     print("=" * 50)
     print(f"FINAL BLEU-1: {avg_bleu1:.4f}")
     print(f"FINAL BLEU-2: {avg_bleu2:.4f}")
+    print(f"FINAL BLEU-3: {avg_bleu3:.4f}")
     print("=" * 50)
 
 

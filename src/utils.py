@@ -37,8 +37,6 @@ def save_model(model, src_tokenizer, tgt_tokenizer, config, save_dir):
     src_tokenizer.save(os.path.join(save_dir, "src_tokenizer.json"))
     tgt_tokenizer.save(os.path.join(save_dir, "tgt_tokenizer.json"))
 
-    print(f"Model, tokenizers and configuration saved to {save_dir}")
-
 
 def load_model(save_dir, device="cpu"):
     """
@@ -162,3 +160,14 @@ def bleu_n(pred_text, ref_text, max_n):
     bleu = bp * geo_mean
 
     return bleu
+
+
+def fix_token_spacing(text):
+    """Detokenize text and remove incorrect spaces."""
+    # Remove spaces before punctuation: "word ." -> "word."
+    text = re.sub(r'\s+([.,!?;:])', r'\1', text)
+
+    # Remove spaces around apostrophes: "I ' m" -> "I'm"
+    text = re.sub(r"\s+'\s+", "'", text)
+    return text
+
