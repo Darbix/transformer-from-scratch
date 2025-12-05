@@ -35,6 +35,7 @@ def main():
     parser.add_argument("--shuffle", action="store_true")
     parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument("--runs_dir", type=str, default="runs")
+    parser.add_argument("--print_model", action="store_true")
     args = parser.parse_args()
 
     # Device CPU/GPU
@@ -90,9 +91,19 @@ def main():
     batch_size = args.batch_size
     num_batches = (len(src_data) + batch_size - 1) // batch_size
 
-    for epoch in range(args.epochs):
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"Total number of parameters: {total_params:,} ({total_params/1e6:.2f}M)")
+ 
+    if(args.print_model):
+        print("")
+        print(model)
 
+    print("")
+    print("Start of training")
+
+    for epoch in range(args.epochs):
         epoch_loss = 0
+        
         for i in range(num_batches):
             # Get indices of sentences in the batch
             start = i * batch_size
@@ -120,6 +131,8 @@ def main():
             epoch_loss += loss.item()
 
         avg_loss = epoch_loss / num_batches
+        loss_history.append(avg_loss)
+
         if (epoch+1) % 5 == 0 or epoch == 0:
             print(f"Epoch {epoch+1}, Loss: {avg_loss:.4f}")
 
@@ -129,6 +142,7 @@ def main():
     # Save model
     os.makedirs(args.runs_dir, exist_ok=True)
     save_dir = os.path.join(args.runs_dir, f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+    os.makedirs(args.runs_dir, exist_ok=True)
     os.makedirs(save_dir, exist_ok=True)
 
     config = {
@@ -155,7 +169,8 @@ def main():
     plt.grid(True)
     plt.legend()
     plt.savefig(os.path.join(save_dir,"training_loss.png"))
-    print(f"Training done. Model and plot saved to {save_dir}")
+
+    print(f"Training done. Model, tokenizer, configuration and plot saved to {save_dir}")
 
 if __name__ == "__main__":
     main()
