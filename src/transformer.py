@@ -227,8 +227,6 @@ class MultiHeadAttention(nn.Module):
 
         # Apply RoPE to Q and K if enabled
         if self.use_rope:
-            # Q = apply_RoPE(Q)
-            # K = apply_RoPE(K)
             Q = self.rope(Q)
             K = self.rope(K)
 
@@ -380,7 +378,8 @@ class Transformer(nn.Module):
         self.src_embedding = nn.Embedding(src_vocab_size, d_model)
         self.tgt_embedding = nn.Embedding(tgt_vocab_size, d_model)
         self.use_rope = use_rope
-        # Switch between absolute sinusoidal positional embedding and RoPE
+        print(f"Transformer is using {'RoPE' if use_rope else 'Sinusoidal'} Positional Encoding.")
+        # Switch between absolute sinusoidal positional encoding and RoPE
         self.pos_encoding = PositionalEncoding(d_model, max_seq_length) if not use_rope else nn.Identity()
 
         # Stack of encoder layers
