@@ -83,7 +83,7 @@ def main():
         print(f"[{i}]", "-" * (46-(i//10)))
         print(f"SRC:  {src}")
         print(f"PRED: {pred_text}")
-        print(f"REF:  {ref_test}")
+        print(f"REF:  {ref_text}")
         print(f"BLEU-1: {bleu1:.3f}, BLEU-2: {bleu2:.3f}, BLEU-3: {bleu3:.3f}")
 
     # ----- Overall BLEU scores -----
