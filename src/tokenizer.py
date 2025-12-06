@@ -86,27 +86,40 @@ class TextTokenizer:
         Returns:
             list [int]: List of encoded token IDs.
         """
+        ids = [] # Sequence of encoded token ids
+
         # ----- WORD-LEVEL TOKENIZATION -----
         if self.mode == self.MODE_WORD:
             # Split the sentence to words by whitespaces
             sentence = sentence.split()
-            ids = [self.vocab["<SOS>"]] + [self.vocab[w] for w in sentence] + [self.vocab["<EOS>"]]
-            if pad_to_len and len(ids) < pad_to_len:
-                ids += [self.vocab["<PAD>"]] * (pad_to_len - len(ids))
-            return ids
+            sos = self.vocab["<SOS>"]
+            eos = self.vocab["<EOS>"]
+            pad  = self.vocab["<PAD>"]
+            ids = [sos] + [self.vocab[w] for w in sentence]
 
         # ----- BPE TOKENIZATION -----
         elif self.mode == self.MODE_BPE:
             sos, eos, pad = [self.tokenizer.token_to_id(t) for t in ("<SOS>", "<EOS>", "<PAD>")]
             enc = self.tokenizer.encode(sentence)
-            # enc = self.tokenizer.encode(sentence)
-            ids = [sos] + enc.ids + [eos]
-            tokens = ["<SOS>"] + enc.tokens + ["<EOS>"]
-            if pad_to_len and len(ids) < pad_to_len:
+            ids = [sos] + enc.ids
+        
+        # Modify the sequence: truncate or add padding
+        if pad_to_len:
+            if len(ids) >= pad_to_len:
+                # Truncate if too long and change the last token to <EOS>
+                ids = ids[:pad_to_len]
+                ids[-1] = eos
+            elif len(ids) < pad_to_len:
+                ids += [eos]
+                # Pad the sequence if it's too short
                 ids += [pad] * (pad_to_len - len(ids))
-            return ids
+        else:
+            ids += [eos]
+
+        return ids
 
     def vocab_size(self):
+        """Get the size of the vocabulary"""
         return len(self.vocab)
 
     def seq_ids2tokens(self, encoded_seq):

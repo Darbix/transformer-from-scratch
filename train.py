@@ -25,6 +25,8 @@ def main():
                         help="Loads data as <SRC>\\t<TGT> instead of <TGT>\\t<SRC>.")
     parser.add_argument("--tokenizer", type=str, default="BPE", choices=["WORD","BPE"])
     parser.add_argument("--max_vocab_size", type=int, default=-1)
+    parser.add_argument("--max_seq_len", type=int, default=-1,
+                    help="Truncate sequences of tokens to this length.")
     parser.add_argument("--d_model", type=int, default=48)
     parser.add_argument("--num_heads", type=int, default=4)
     parser.add_argument("--num_layers", type=int, default=6)
@@ -36,6 +38,7 @@ def main():
     parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument("--runs_dir", type=str, default="runs")
     parser.add_argument("--print_model", action="store_true")
+    parser.add_argument("--use_rope", action="store_true")
     args = parser.parse_args()
 
     # Device CPU/GPU
@@ -60,6 +63,11 @@ def main():
     print(f"SRC vocabulary size: {src_vocab_size}, max. sequence length: {max_src_len}")
     print(f"TGT vocabulary size: {tgt_vocab_size}, max. sequence length: {max_tgt_len}")
 
+    if(args.max_seq_len > 0):
+        max_src_len = args.max_seq_len
+        max_tgt_len = args.max_seq_len
+        print(f"Max sequence length is set to {args.max_seq_len}")
+
     # Encode data
     src_data = torch.tensor(
         [src_tokenizer.encode(s, max_src_len) for s in src_sentences], device=device)
@@ -79,7 +87,8 @@ def main():
     max_seq_length = max(max_src_len, max_tgt_len)
     model = Transformer(
         src_vocab_size, tgt_vocab_size, args.d_model, args.num_heads,
-        args.num_layers, args.num_layers, args.d_ff, args.dropout, max_seq_length
+        args.num_layers, args.num_layers, args.d_ff, args.dropout,
+        max_seq_length, use_rope=args.use_rope
     ).to(device)
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)
@@ -155,7 +164,7 @@ def main():
         "d_ff": args.d_ff,
         "dropout": args.dropout,
         "max_seq_length": max_seq_length,
-        "use_rope": True
+        "use_rope": args.use_rope
     }
 
     save_model(model, src_tokenizer, tgt_tokenizer, config, save_dir)
