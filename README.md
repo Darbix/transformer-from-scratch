@@ -17,26 +17,26 @@
 
 ## Project Overview
 
-This project implements a **Transformer-based sequence-to-sequence model** from scratch, demonstrating core techniques in modern **Natural Language Processing (NLP)**, including:
+This project implements a **Transformer-based sequence-to-sequence model** from scratch in PyTorch [3], closely following the architecture introduced in the paper “Attention Is All You Need” by Vaswani et al. (2017) [1]. The goal of the project is to provide a clear implementation that exposes the core building blocks of modern Transformer models without relying on high-level abstractions. The project demonstrates core techniques in modern **Natural Language Processing (NLP)**, including:
 
-- Multi-head attention
+- Multi-head attention and cross-attention mechanisms
 - Encoder-decoder architecture
-- Word-level and subword-level (BPE) tokenization
-- Rotary Positional Embeddings (RoPE)
-- Autoregressive sequence generation
+- Word-level and subword-level (BPE) tokenization [4]
+- Rotary Positional Embeddings (RoPE) [2]
+- Autoregressive sequence generation for inference
 
-The model can be trained on **any sequence-to-sequence dataset**, such as language translation, summarization, or other NLP tasks. In examples, it was trained on Czech-to-English sentence pairs, but the architecture is fully general-purpose.
+The model can be trained on **any sequence-to-sequence dataset**, such as language translation, summarization, or other NLP tasks. In examples, it was trained on Czech-to-English sentence pairs from OPUS corpora (https://opus.nlpl.eu/), but the architecture is fully general-purpose (task-agnostic).
 
-The model is trained using *cross-entropy* loss with padded sequences and evaluated with **BLEU-N** metric.
+The model is trained using *cross-entropy* loss with padded sequences and evaluated using the **BLEU-N** metric.
 
 
 **Example:**
 
-| Input Sequence   | Predicted Output | Reference Output |
-|-----------------|-----------------|----------------|
-| `Chci koupit nové jídlo.` | `I want to buy food .` | `I want to buy new food.` |
-
----
+| 📝 Input (Czech) | 🤖 Model Prediction | ✅ Reference Output |
+|:--|:--|:--|
+| Co se tam děje? | What's going on here? | What is happening there? |
+| Tom je jediný, kdo může Mary pomoct. | Tom is the only person who can help Mary. | Tom is the only one who can help Mary. |
+| Chci říct, že to není snadné. | I mean, it's not easy. | Now I want to say, this is not easy. |
 
 
 ## Installation
@@ -54,7 +54,6 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-
 ## Dataset Preparation
 
 The project expects data in tab-separated format, with source and target sequences:
@@ -62,7 +61,7 @@ The project expects data in tab-separated format, with source and target sequenc
 <target sequence> \t <source sequence>
 ```
 
-Example `test_basic.txt`:
+Example `test_basic.txt` (data from [5]):
 ```
 I see a new car.                	Vidím nové auto.
 I see a small city.              	Vidím malé město.
@@ -86,12 +85,15 @@ Train the seq2seq Transformer using `train.py`:
 ```
 python train.py \
     --data_path data/train.txt \
+    --val_path data/val.txt \
     --tokenizer BPE \
-    --max_vocab_size 5000 \
-    --d_model 64 \
+    --use_rope \
+    --max_vocab_size 10000 \
+    --max_seq_len 64 \
+    --d_model 256 \
     --num_heads 4 \
-    --num_layers 6 \
-    --d_ff 128 \
+    --num_layers 4 \
+    --d_ff 1024 \
     --dropout 0.1 \
     --epochs 20 \
     --lr 0.001 \
@@ -108,23 +110,23 @@ Evaluate a trained model on a test set:
 python test.py \
     --data_path data/test.txt \
     --checkpoint_dir runs/checkpoint_20251120_123015 \
-    --max_tgt_len 20
+    --max_tgt_len 64
 ```
 
 **Features**:
 
 - Automatic source encoding with the stored tokenizer
 - Autoregressive decoding using <SOS> and <EOS> tokens
-- BLEU-1 and BLEU-2 computation
+- BLEU-N computation
 - Prints predictions alongside references
 
 **Example output**:
 
 ```
-SRC:  Chci koupit nové jídlo.
-PRED: I want to buy food .
-REF:  I want to buy new food.
-BLEU-1: 0.819, BLEU-2: 0.709
+SRC:  Taková je bohužel realita, ve které musím žít.
+PRED:  This is unfortunately the reality that I have to live in.
+REF:  That’s the reality, unfortunately, in which I have to live.
+BLEU-1: 0.690, BLEU-2: 0.480, BLEU-3: 0.349
 ```
 
 
@@ -140,15 +142,15 @@ BLEU-1: 0.819, BLEU-2: 0.709
 
 ## References
 
-- [*Vaswani et al., Attention Is All You Need (2017)*](https://arxiv.org/abs/1706.03762)
+[1] [*Vaswani et al., Attention Is All You Need (2017)*](https://arxiv.org/abs/1706.03762)
  — Original Transformer paper introducing multi-head attention.
 
-- [*PyTorch*](https://pytorch.org/docs/stable/index.html) Documentation
-
-- [*HuggingFace Tokenizers*](https://huggingface.co/docs/tokenizers/python/latest/) Documentation
-
-- [*Su et al., RoFormer: Enhanced Transformer with Rotary Position Embedding (2021)*](https://arxiv.org/abs/2104.09864)
+[2] [*Su et al., RoFormer: Enhanced Transformer with Rotary Position Embedding (2021)*](https://arxiv.org/abs/2104.09864)
  — Rotary positional embeddings (RoPE) used for improved sequence modeling.
 
-- [ManyThings.org: Tab-delimited Bilingual Sentence Pairs](https://www.manythings.org/anki/)  
+[3] [*PyTorch*](https://pytorch.org/docs/stable/index.html) Documentation
+
+[4] [*HuggingFace Tokenizers*](https://huggingface.co/docs/tokenizers/index) Documentation
+
+[5] [ManyThings.org: Tab-delimited Bilingual Sentence Pairs](https://www.manythings.org/anki/)  
   — Selected sentence pairs from the Tatoeba Project. Used for sequence-to-sequence training examples.
