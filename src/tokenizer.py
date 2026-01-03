@@ -4,6 +4,8 @@
 # ====================================================================
 
 from tokenizers import Tokenizer, models, trainers, pre_tokenizers
+from tokenizers.decoders import ByteLevel as ByteLevelDecoder
+from tokenizers.pre_tokenizers import ByteLevel
 import torch
 import json
 import os
@@ -37,8 +39,13 @@ class TextTokenizer:
         # ----- BPE TOKENIZER -----
         elif mode == self.MODE_BPE:
             self.tokenizer = Tokenizer(models.BPE())
-            # Pre-tokenizer splits input text on whitespace to whole words
-            self.tokenizer.pre_tokenizer = pre_tokenizers.Whitespace()
+
+            # Whitespace pre-tokenizer splits input text on whitespaces to whole words
+            # self.tokenizer.pre_tokenizer = pre_tokenizers.Whitespace()
+            
+            # Byte-level pre-tokenizer splits input text adaptively
+            self.tokenizer.pre_tokenizer = ByteLevel()
+            self.tokenizer.decoder = ByteLevelDecoder()
 
             trainer = trainers.BpeTrainer(
                 vocab_size=max_vocab_size if max_vocab_size > 0 else 30000,
@@ -117,6 +124,15 @@ class TextTokenizer:
             ids += [eos]
 
         return ids
+
+    def decode(self, ids):
+        """Detokenize the token IDs back to a text string."""
+        if self.mode == self.MODE_WORD:
+            # Trivial word-level concatenation using spaces
+            return " ".join(self.dict_id2token[i] for i in ids if i > 2)
+        elif self.mode == self.MODE_BPE:
+            # Use built-in BPE decoder for the merge
+            return self.tokenizer.decode(ids, skip_special_tokens=True)
 
     def vocab_size(self):
         """Get the size of the vocabulary"""
