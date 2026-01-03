@@ -39,6 +39,8 @@ def main():
     parser.add_argument("--runs_dir", type=str, default="runs")
     parser.add_argument("--print_model", action="store_true")
     parser.add_argument("--use_rope", action="store_true")
+    parser.add_argument("--val_path", type=str, default=None,
+                    help="Optional validation dataset.")
     args = parser.parse_args()
 
     # Device CPU/GPU
@@ -68,11 +70,15 @@ def main():
         max_tgt_len = args.max_seq_len
         print(f"Max sequence length is set to {args.max_seq_len}")
 
-    # Encode data
+    # Encode training data
     src_data = torch.tensor(
-        [src_tokenizer.encode(s, max_src_len) for s in src_sentences], device=device)
+        [src_tokenizer.encode(s, max_src_len) for s in src_sentences],
+        device=device
+    )
     tgt_data = torch.tensor(
-        [tgt_tokenizer.encode(s, max_tgt_len) for s in tgt_sentences], device=device)
+        [tgt_tokenizer.encode(s, max_tgt_len) for s in tgt_sentences],
+        device=device
+    )
 
     print(f"SRC data shape: {src_data.shape}")
     print(f"TGT data shape: {tgt_data.shape}")
@@ -82,6 +88,25 @@ def main():
         perm = torch.randperm(len(src_data))
         src_data = src_data[perm]
         tgt_data = tgt_data[perm]
+
+    # Load and encode validation data
+    val_src_data = val_tgt_data = None
+    if args.val_path is not None:
+        val_pairs = parse_dataset(args.val_path, swap=args.swap)
+        val_src_sentences, val_tgt_sentences = map(list, zip(*val_pairs))
+        
+        # Tokenize sentences
+        val_src_data = torch.tensor(
+            [src_tokenizer.encode(s, max_src_len) for s in val_src_sentences],
+            device=device
+        )
+        val_tgt_data = torch.tensor(
+            [tgt_tokenizer.encode(s, max_tgt_len) for s in val_tgt_sentences],
+            device=device
+        )
+
+        print(f"Loaded validation set: {len(val_src_data)} samples from {args.val_path}")
+
 
     # Model
     max_seq_length = max(max_src_len, max_tgt_len)
@@ -96,6 +121,7 @@ def main():
     model.train()
 
     loss_history = []
+    val_loss_history = []
 
     batch_size = args.batch_size
     num_batches = (len(src_data) + batch_size - 1) // batch_size
@@ -106,6 +132,23 @@ def main():
     if(args.print_model):
         print("")
         print(model)
+    
+    # Configuration dictionary used for model checkpoints
+    config = {
+        "src_vocab_size": src_vocab_size,
+        "tgt_vocab_size": tgt_vocab_size,
+        "d_model": args.d_model,
+        "num_heads": args.num_heads,
+        "num_encoder_layers": args.num_layers,
+        "num_decoder_layers": args.num_layers,
+        "d_ff": args.d_ff,
+        "dropout": args.dropout,
+        "max_seq_length": max_seq_length,
+        "use_rope": args.use_rope
+    }
+
+    # Create directory for model checkpoints
+    os.makedirs(args.runs_dir, exist_ok=True)
 
     print("")
     print("Start of training")
@@ -139,47 +182,73 @@ def main():
 
             epoch_loss += loss.item()
 
-        avg_loss = epoch_loss / num_batches
-        loss_history.append(avg_loss)
+        avg_train_loss = epoch_loss / num_batches
+        loss_history.append(avg_train_loss)
 
-        if (epoch+1) % 5 == 0 or epoch == 0:
-            print(f"Epoch {epoch+1}, Loss: {avg_loss:.4f}")
-
-
-
-
+        # Validation
+        if val_src_data is not None:
+            val_loss = compute_val_loss(
+                model, val_src_data, val_tgt_data, batch_size,
+                criterion, tgt_vocab_size
+            )
+            val_loss_history.append(val_loss)
+            print(f"Epoch {epoch+1} | Train loss: {avg_train_loss:.4f} | Val loss: {val_loss:.4f}")
+        else:
+            print(f"Epoch {epoch+1} | Train loss: {avg_train_loss:.4f}")
+        
+        # Save model checkpoint
+        if((epoch+1) % 10 == 0 or (epoch+1) >= args.epochs):
+            save_dir = os.path.join(args.runs_dir, f"checkpoint_E{epoch+1}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+            os.makedirs(save_dir, exist_ok=True)
+            save_model(model, src_tokenizer, tgt_tokenizer, config, save_dir)
+            print(f"Model, tokenizer and configuration were saved to {save_dir}")
+    
     # Save model
-    os.makedirs(args.runs_dir, exist_ok=True)
-    save_dir = os.path.join(args.runs_dir, f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
-    os.makedirs(args.runs_dir, exist_ok=True)
+    save_dir = os.path.join(args.runs_dir, f"checkpoint_last_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
     os.makedirs(save_dir, exist_ok=True)
-
-    config = {
-        "src_vocab_size": src_vocab_size,
-        "tgt_vocab_size": tgt_vocab_size,
-        "d_model": args.d_model,
-        "num_heads": args.num_heads,
-        "num_encoder_layers": args.num_layers,
-        "num_decoder_layers": args.num_layers,
-        "d_ff": args.d_ff,
-        "dropout": args.dropout,
-        "max_seq_length": max_seq_length,
-        "use_rope": args.use_rope
-    }
 
     save_model(model, src_tokenizer, tgt_tokenizer, config, save_dir)
 
     # Plot
     plt.figure(figsize=(8,5))
     plt.plot(loss_history, label="Training Loss")
+    if(len(val_loss_history) > 0):
+        plt.plot(val_loss_history, label="Validation Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.title("Transformer Training Loss")
+    plt.title("Transformer Training & Validation Loss")
     plt.grid(True)
     plt.legend()
-    plt.savefig(os.path.join(save_dir,"training_loss.png"))
+    plt.savefig(os.path.join(save_dir,"loss.png"))
 
-    print(f"Training done. Model, tokenizer, configuration and plot saved to {save_dir}")
+    print(f"Training done. The loss plot was saved to {save_dir}")
+
+
+@torch.no_grad()
+def compute_val_loss(model, val_src, val_tgt, batch_size, criterion, tgt_vocab_size):
+    """Compute validation loss for the whole validation dataset."""
+    model.eval()
+    num_batches = (len(val_src) + batch_size - 1) // batch_size
+    total_loss = 0
+
+    for i in range(num_batches):
+        start = i * batch_size
+        end = min((i + 1) * batch_size, len(val_src))
+
+        enc_input = val_src[start:end]
+        dec_input  = val_tgt[start:end, :-1]
+        labels  = val_tgt[start:end, 1:]
+
+        out = model(enc_input, dec_input)
+        pred = out.contiguous().view(-1, tgt_vocab_size)
+        labels = labels.contiguous().view(-1)
+
+        loss = criterion(pred, labels)
+        total_loss += loss.item()
+
+    model.train()
+    return total_loss / num_batches
+
 
 if __name__ == "__main__":
     main()
