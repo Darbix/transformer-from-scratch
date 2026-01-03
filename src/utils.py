@@ -163,11 +163,14 @@ def bleu_n(pred_text, ref_text, max_n):
 
 
 def fix_token_spacing(text):
-    """Detokenize text and remove incorrect spaces."""
-    # Remove spaces before punctuation: "word ." -> "word."
-    text = re.sub(r'\s+([.,!?;:])', r'\1', text)
-
-    # Remove spaces around apostrophes: "I ' m" -> "I'm"
+    """Detokenize text and fix incorrect spaces."""
+    # Remove spaces before common punctuation
+    text = re.sub(r'\s+([.,!?;:…“\)\]\}])', r'\1', text)
+    # Remove spaces after opening brackets/quotes
+    text = re.sub(r'([(\[\{"‘„])\s+', r'\1', text)
+    # Fix contractions like "I ' m" -> "I'm"
     text = re.sub(r"\s+'\s+", "'", text)
-    return text
+    # Collapse multiple spaces
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
 
