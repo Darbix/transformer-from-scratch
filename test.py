@@ -23,6 +23,8 @@ def main():
                         help="Loads data as <SRC>\\t<TGT> instead of <TGT>\\t<SRC>.")
     args = parser.parse_args()
 
+    print(f"Data will be loaded from: {args.data_path}")
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
@@ -37,9 +39,9 @@ def main():
     czech_sentences, english_sentences = map(list, zip(*data_pairs))
 
     # If max_tgt_len is not specified, use the max length of target sequences
-    max_tgt_len = args.max_tgt_len
-    if(max_tgt_len <= 0):
-        max_tgt_len = tgt_tokenizer.get_max_seq_len(english_sentences)
+    max_seq_len = args.max_tgt_len
+    if(max_seq_len <= 0):
+        max_seq_len = config["max_seq_length"]
 
     sos_id = tgt_tokenizer.vocab["<SOS>"]
     eos_id = tgt_tokenizer.vocab["<EOS>"]
@@ -54,7 +56,7 @@ def main():
     # ----- Iterate through all samples -----
     for i, (src, tgt) in enumerate(data_pairs):
         # Encode the source input
-        src_ids = torch.tensor([src_tokenizer.encode(src)], device=device)
+        src_ids = torch.tensor([src_tokenizer.encode(src, max_seq_len)], device=device)
 
         # Predict the target sentence
         with torch.no_grad():
@@ -62,14 +64,11 @@ def main():
                 src_ids,
                 sos_id,
                 eos_id,
-                max_tgt_len=max_tgt_len
+                max_tgt_len=max_seq_len
             )
 
-        # Convert predicted IDs back to tokens
-        pred_tokens = tgt_tokenizer.seq_ids2tokens(pred_ids)
-
         # ----- BLEU metric computation -----
-        pred_text = fix_token_spacing(" ".join(pred_tokens))
+        pred_text = tgt_tokenizer.decode(pred_ids)
         ref_text = tgt
         
         bleu1 = bleu_n(pred_text, ref_text, max_n=1)
