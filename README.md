@@ -17,15 +17,15 @@
 
 ## Project Overview
 
-This project implements a **Transformer-based sequence-to-sequence model** from scratch in PyTorch [3], closely following the architecture introduced in the paper “Attention Is All You Need” by Vaswani et al. (2017) [1]. The goal of the project is to provide a clear implementation that exposes the core building blocks of modern Transformer models without relying on high-level abstractions. The project demonstrates core techniques in modern **Natural Language Processing (NLP)**, including:
+This project implements a **Transformer-based sequence-to-sequence model** from scratch in PyTorch [4], closely following the architecture introduced in the paper “Attention Is All You Need” by Vaswani et al. (2017) [1]. The goal of the project is to provide a clear implementation that exposes the core building blocks of modern Transformer models without relying on high-level abstractions. The project demonstrates core techniques in modern **Natural Language Processing (NLP)**, including:
 
 - Multi-head attention and cross-attention mechanisms
 - Encoder-decoder architecture
-- Word-level and subword-level (BPE) tokenization [4]
+- Word-level and subword-level (BPE) tokenization [5]
 - Rotary Positional Embeddings (RoPE) [2]
 - Autoregressive sequence generation for inference
 
-The model can be trained on **any sequence-to-sequence dataset**, such as language translation, summarization, or other NLP tasks. In examples, it was trained on Czech-to-English sentence pairs from OPUS corpora (https://opus.nlpl.eu/), but the architecture is fully general-purpose (task-agnostic).
+The implementation was inspired by the structure presented in the article by Ebad Sayed [3]. The model can be trained on **any sequence-to-sequence dataset**, such as language translation, summarization, or other NLP tasks. In examples, it was trained on Czech-to-English sentence pairs from OPUS corpora (https://opus.nlpl.eu/), but the architecture is fully general-purpose (task-agnostic).
 
 The model is trained using *cross-entropy* loss with padded sequences and evaluated using the **BLEU-N** metric.
 
@@ -61,7 +61,7 @@ The project expects data in tab-separated format, with source and target sequenc
 <target sequence> \t <source sequence>
 ```
 
-Example `test_basic.txt` (data from [5]):
+Example `test_basic.txt` (data from [6]):
 ```
 I see a new car.                	Vidím nové auto.
 I see a small city.              	Vidím malé město.
@@ -143,14 +143,13 @@ BLEU-1: 0.690, BLEU-2: 0.480, BLEU-3: 0.349
 ## References
 
 [1] [*Vaswani et al., Attention Is All You Need (2017)*](https://arxiv.org/abs/1706.03762)
- — Original Transformer paper introducing multi-head attention.
 
 [2] [*Su et al., RoFormer: Enhanced Transformer with Rotary Position Embedding (2021)*](https://arxiv.org/abs/2104.09864)
- — Rotary positional embeddings (RoPE) used for improved sequence modeling.
 
-[3] [*PyTorch*](https://pytorch.org/docs/stable/index.html) Documentation
+[3] [*Ebad Sayed, Building a Transformer from Scratch: A Step-by-Step Guide (2024)*](https://medium.com/@sayedebad.777/building-a-transformer-from-scratch-a-step-by-step-guide-a3df0aeb7c9a)
 
-[4] [*HuggingFace Tokenizers*](https://huggingface.co/docs/tokenizers/index) Documentation
+[4] [*PyTorch*](https://pytorch.org/docs/stable/index.html)
 
-[5] [ManyThings.org: Tab-delimited Bilingual Sentence Pairs](https://www.manythings.org/anki/)  
-  — Selected sentence pairs from the Tatoeba Project. Used for sequence-to-sequence training examples.
+[5] [*HuggingFace Tokenizers*](https://huggingface.co/docs/tokenizers/index)
+
+[6] [*ManyThings.org: Tab-delimited Bilingual Sentence Pairs*](https://www.manythings.org/anki/)
