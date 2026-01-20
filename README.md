@@ -6,10 +6,11 @@
 
 ## Table of Contents
 - [Project Overview](#project-overview)
+- [Technical Report](#technical-report)
 - [Installation](#installation)
 - [Dataset Preparation](#dataset-preparation)
 - [Training](#training)
-- [Testing / Evaluation](#testing--evaluation)
+- [Evaluation](#evaluation)
 - [Project Structure](#project-structure)
 - [References](#references)
 
@@ -37,6 +38,14 @@ The model is trained using *cross-entropy* loss with padded sequences and evalua
 | Co se tam děje? | What's going on here? | What is happening there? |
 | Tom je jediný, kdo může Mary pomoct. | Tom is the only person who can help Mary. | Tom is the only one who can help Mary. |
 | Chci říct, že to není snadné. | I mean, it's not easy. | Now I want to say, this is not easy. |
+
+
+## Technical Report
+
+A detailed technical report describing the model architecture, design choices,
+training setup, and experimental results is available here:
+
+📄 **[Technical Report](docs/technical_report.pdf)**
 
 
 ## Installation
@@ -81,7 +90,9 @@ python split_dataset.py \
 ```
 
 ## Training
+
 Train the seq2seq Transformer using `train.py`:
+
 ```
 python train.py \
     --data_path data/train.txt \
@@ -104,7 +115,9 @@ python train.py \
 
 Model checkpoints, training loss plot and tokenizer states (`BPE` or `WORD` level) are saved in `runs/checkpoint_<timestamp>/`
 
-## Testing / Evaluation
+
+## Evaluation
+
 Evaluate a trained model on a test set:
 ```
 python test.py \
